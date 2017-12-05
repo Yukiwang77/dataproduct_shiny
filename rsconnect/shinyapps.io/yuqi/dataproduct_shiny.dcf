@@ -1,0 +1,10 @@
+name: dataproduct_shiny
+title:
+username:
+account: yuqi
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 244727
+bundleId: 1117305
+url: https://yuqi.shinyapps.io/dataproduct_shiny/
+when: 1512503767.75498
