@@ -9,12 +9,17 @@ shinyUI(fluidPage(
   # Application title
   titlePanel("Real-time Holt-Winters Time Series Forecast"),
   fluidRow(
-    column(9, h4("")),
+    column(9, h4(uiOutput("repo"))),
     column(3, h4(textOutput("date")))
   ),
   hr(),
   fluidRow(
-    h4("36 Consecutive Monthly Advertising Expense and Sales Data of a Dietary Weight Control Product"),
+    h3("Introduction to Holt-Winters Time Series"),
+    p("If you have a time series that can be described using an additive model with increasing or decreasing trend and seasonality, you can use Holt-Winters exponential smoothing to make short-term forecasts. Holt-Winters exponential smoothing estimates the level, slope and seasonal component at the current time point. Smoothing is controlled by three parameters: alpha, beta, and gamma, for the estimates of the level, slope b of the trend component, and the seasonal component, respectively, at the current time point. The parameters alpha, beta and gamma all have values between 0 and 1, and values that are close to 0 mean that relatively little weight is placed on the most recent observations when making forecasts of future values."),
+    p("Below is an example of Holt-Winters Forecast.")
+  ),
+  fluidRow(
+    h3("36 Consecutive Monthly Advertising Expense and Sales Data of a Dietary Weight Control Product"),
     p("The following two charts show the monthly advertising expenditures and Sales in past 36 months of a dietary weight control product."),
     column(6, 
            h4("Advertising Expenditures"),

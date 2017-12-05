@@ -21,6 +21,10 @@ data$month <- as.Date(data$month, format = "%m/%d/%y")
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   output$date <- renderText({paste("Compiled:", as.character(Sys.Date()))})
+  url <- a("Github Repo", href="https://github.com/Yukiwang77/dataproduct_shiny")
+  output$repo <- renderUI({
+    tagList("Source Code:", url)
+  })
   output$plot_ads_history <- renderPlot({
     plot_ads_history <- ggplot(data, aes(x = month, y = advertising)) + geom_point(color = "red", size = 2) + geom_line(alpha = 0.75, size = 1, color = "black") + xlab("Month") + ylab("Advertising Expenditures") + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.text= element_text(size = 16), legend.position = "bottom", legend.title= element_text(size = 20))
     print(plot_ads_history)
