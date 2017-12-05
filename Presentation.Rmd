@@ -1,0 +1,29 @@
+---
+title: "Shiny App: Holt-Winters Time Series"
+author: "Yuqi Wang"
+date: "12/5/2017"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+##Agenda
+- Introduction
+- Holt-Winters Time Series
+- Example of product sales and advertising expenditures
+- Code of Holt-Winters time series function in shiny app
+
+## Introduction
+This is a student project for Coursera course **Data Product**. The project is to deploy a shiny app that takes inputs from user interface in *ui.R* and generate statistical outputs from *server.R*. The application is launched at the platform from RStudio shinyapss.io, the source code is stored at github, and the presentation documentation is published on Rpub.
+
+The dataset that I chose was from data library, and it contains advertising cost and sales data of a specific product in the past 36 months.
+
+The materials can be found in:
+
+Web app: https://yuqi.shinyapps.io/dataproduct_shiny/
+
+GitHub Repo: https://github.com/Yukiwang77/dataproduct_shiny
+
+## 
