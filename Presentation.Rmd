@@ -2,7 +2,9 @@
 title: "Shiny App: Holt-Winters Time Series"
 author: "Yuqi Wang"
 date: "12/5/2017"
-output: ioslides_presentation
+output: 
+  ioslides_presentation:
+        incremental: true
 ---
 
 ```{r setup, include=FALSE}
@@ -12,8 +14,7 @@ knitr::opts_chunk$set(echo = FALSE)
 ##Agenda
 - Introduction
 - Holt-Winters Time Series
-- Example of product sales and advertising expenditures
-- Code of Holt-Winters time series function in shiny app
+- Example of Product Sales and Advertising Expenditures
 
 ## Introduction
 This is a student project for Coursera course **Data Product**. The project is to deploy a shiny app that takes inputs from user interface in *ui.R* and generate statistical outputs from *server.R*. The application is launched at the platform from RStudio shinyapss.io, the source code is stored at github, and the presentation documentation is published on Rpub.
@@ -26,4 +27,65 @@ Web app: https://yuqi.shinyapps.io/dataproduct_shiny/
 
 GitHub Repo: https://github.com/Yukiwang77/dataproduct_shiny
 
-## 
+## Holt-Winters Time Series  
+The Holt-Winters seasonal method comprises the forecast equation and three smoothing equations — one for the level, one for trend, and one for the seasonal component, with smoothing parameters \(\alpha\), \(\beta\) and \(\gamma\).  
+
+Properties:  
+  1.\(\alpha\) \(\subset\) (0, 1], \(\beta\) \(\subset\) [0,1], and \(\gamma\) \(\subset\) [0,1].  
+  2. A small value of \(\alpha\), \(\beta\) and \(\gamma\) means that the older values in time series data are weighted       more heavily.  
+  3. Values of \(\alpha\), \(\beta\) and \(\gamma\) near 1.0 mean that the latest value has more weight.
+
+## Holt-Winters Time Series Demo
+To demo the shiny app, let's set paramters as below for both advertising and sales and call the function in R to generate forecast till EOY 2018.
+```{r parameter}
+a <- 0.85
+b <- 0.5
+c <- 0.75
+```
+\(\alpha\) = `r a`    \(\beta\) = `r b`   \(\gamma\) = `r c`  
+```{r hw-funtion, warning = FALSE, message = FALSE, fig.width = 8, fig.height = 4}
+library(ggplot2)
+library(lubridate)
+library(forecast)
+library(reshape2)
+library(plyr)
+library(gridExtra)
+#Load the data from csv
+data <- read.csv("ad_sales_data.csv", header = TRUE, stringsAsFactors = FALSE, sep = ",")
+#reformat and preprocess the data
+names(data) <- tolower(names(data))
+data$month <- as.Date(data$month, format = "%m/%d/%y")
+forecast_function <- function(month_end, year_end, a, b, c){
+      fc_data <- data.frame(ReportDate = as.Date(data$month, format = "%Y-%m-%d"), 
+                            advertising = data$advertising,
+                            sales = data$sales, 
+                            Type = "Train")
+
+    fc_data <- arrange(fc_data, ReportDate)
+    n_month <- length(seq(from = max(fc_data$ReportDate), to = as.Date(paste(paste(year_end, month_end, sep = "-"), 01, sep = "-"), format = "%Y-%m-%d"), by = 'month')) -1
+    fc.ts_ad <- ts(fc_data$advertising, start = c(year(min(fc_data$ReportDate)), month(min(fc_data$ReportDate))), frequency = 12)
+    fc.ts_sales <- ts(fc_data$sales, start = c(year(min(fc_data$ReportDate)), month(min(fc_data$ReportDate))), frequency = 12)
+    fit_ad <- HoltWinters(fc.ts_ad, alpha = a, beta = b, gamma = c)
+    fit_sales <- HoltWinters(fc.ts_sales, alpha = a, beta = b, gamma = c)
+    fc_ad <- predict(fit_ad, n.ahead = n_month)
+    fc_sales <- predict(fit_sales, n.ahead = n_month)
+    fc_ad <- ifelse(fc_ad < 0, 0, fc_ad)
+    fc_sales <- ifelse(fc_sales < 0, 0, fc_sales)
+    
+    data.fc <- data.frame(ReportDate = seq(from = (max(fc_data$ReportDate) %m+% months(1)), to = as.Date(paste(paste(year_end, month_end, sep = "-"), 01, sep = "-"), format = "%Y-%m-%d"), by = "month"),
+                          fc_ad,
+                          fc_sales,
+                          Type = "Forecast")
+    names(data.fc)[2:3] <- c("advertising", "sales")
+    data.all <- rbind(fc_data, data.fc)
+    return(data.all)
+}
+month_end <- 12
+year_end <- 2018
+all <- forecast_function(month_end, year_end, a, b, c)
+p <- ggplot(all, aes(x = ReportDate, y = advertising, color = Type)) + geom_point() + geom_line(alpha = 0.5, size = 0.5, aes(group = Type)) + xlab("Month") + ylab("Advertising Expenditures") + scale_x_date(date_breaks = "3 months") + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.text= element_text(size = 7), legend.position = "bottom", legend.title= element_text(size = 10))
+q <- ggplot(all, aes(x = ReportDate, y = sales, color = Type)) + geom_point() + geom_line(alpha = 0.5, size = 0.5, aes(group = Type)) + xlab("Month") + ylab("Sales")  + scale_x_date(date_breaks = "3 months") +  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.text= element_text(size = 7), legend.position = "bottom", legend.title= element_text(size = 10))
+
+grid.arrange(p, q, ncol = 2)
+
+```
